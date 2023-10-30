@@ -155,7 +155,7 @@ class MiDaSInference(nn.Module):
         self.model.train = disabled_train
 
     def forward(self, x):
-        # x in 0..1 as produced by calling self.transform on a 0..1 float64 numpy array
+        # x in 0..1 as produced by calling self.transform on a 0..1 float32 numpy array
         # NOTE: we expect that the correct transform has been called during dataloading.
         with torch.no_grad():
             prediction = self.model(x)

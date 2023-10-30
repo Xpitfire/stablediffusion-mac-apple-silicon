@@ -10,10 +10,10 @@ import torch as th
 
 
 def _warmup_beta(beta_start, beta_end, num_diffusion_timesteps, warmup_frac):
-    betas = beta_end * np.ones(num_diffusion_timesteps, dtype=np.float64)
+    betas = beta_end * np.ones(num_diffusion_timesteps, dtype=np.float32)
     warmup_time = int(num_diffusion_timesteps * warmup_frac)
     betas[:warmup_time] = np.linspace(
-        beta_start, beta_end, warmup_time, dtype=np.float64
+        beta_start, beta_end, warmup_time, dtype=np.float32
     )
     return betas
 
@@ -29,23 +29,23 @@ def get_beta_schedule(beta_schedule, *, beta_start, beta_end, num_diffusion_time
                 beta_start**0.5,
                 beta_end**0.5,
                 num_diffusion_timesteps,
-                dtype=np.float64,
+                dtype=np.float32,
             )
             ** 2
         )
     elif beta_schedule == "linear":
         betas = np.linspace(
-            beta_start, beta_end, num_diffusion_timesteps, dtype=np.float64
+            beta_start, beta_end, num_diffusion_timesteps, dtype=np.float32
         )
     elif beta_schedule == "warmup10":
         betas = _warmup_beta(beta_start, beta_end, num_diffusion_timesteps, 0.1)
     elif beta_schedule == "warmup50":
         betas = _warmup_beta(beta_start, beta_end, num_diffusion_timesteps, 0.5)
     elif beta_schedule == "const":
-        betas = beta_end * np.ones(num_diffusion_timesteps, dtype=np.float64)
+        betas = beta_end * np.ones(num_diffusion_timesteps, dtype=np.float32)
     elif beta_schedule == "jsd":  # 1/T, 1/(T-1), 1/(T-2), ..., 1
         betas = 1.0 / np.linspace(
-            num_diffusion_timesteps, 1, num_diffusion_timesteps, dtype=np.float64
+            num_diffusion_timesteps, 1, num_diffusion_timesteps, dtype=np.float32
         )
     else:
         raise NotImplementedError(beta_schedule)
@@ -156,8 +156,8 @@ class GaussianDiffusion(th.nn.Module):
         self.model_var_type = model_var_type
         self.loss_type = loss_type
 
-        # Use float64 for accuracy.
-        betas = np.array(betas, dtype=np.float64)
+        # Use float32 for accuracy.
+        betas = np.array(betas, dtype=np.float32)
         assert len(betas.shape) == 1, "betas must be 1-D"
         assert (betas > 0).all() and (betas <= 1).all()
 

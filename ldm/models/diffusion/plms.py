@@ -20,6 +20,8 @@ class PLMSSampler(object):
     def register_buffer(self, name, attr):
         if type(attr) == torch.Tensor:
             if attr.device != self.device:
+                # set dtype to float32
+                attr = attr.to(torch.float32)
                 attr = attr.to(self.device)
         setattr(self, name, attr)
 

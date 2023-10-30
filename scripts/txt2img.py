@@ -45,6 +45,8 @@ def load_model_from_config(config, ckpt, device=torch.device("cuda"), verbose=Fa
     elif device == torch.device("cpu"):
         model.cpu()
         model.cond_stage_model.device = "cpu"
+    elif device == torch.device("mps"):
+        model = model.to('mps')
     else:
         raise ValueError(f"Incorrect device name. Received: {device}")
     model.eval()
@@ -181,7 +183,7 @@ def parse_args():
         "--device",
         type=str,
         help="Device on which Stable Diffusion will be run",
-        choices=["cpu", "cuda"],
+        choices=["cpu", "cuda", "mps"],
         default="cpu"
     )
     parser.add_argument(
@@ -215,7 +217,12 @@ def main(opt):
     seed_everything(opt.seed)
 
     config = OmegaConf.load(f"{opt.config}")
-    device = torch.device("cuda") if opt.device == "cuda" else torch.device("cpu")
+    if opt.device == "cuda":
+        device = torch.device("cuda")
+    elif opt.device == "mps":
+        device = torch.device("mps")
+    else:
+        device = torch.device("cpu")
     model = load_model_from_config(config, f"{opt.ckpt}", device)
 
     if opt.plms:
